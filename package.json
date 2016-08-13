@@ -1,0 +1,19 @@
+{
+  "name": "dayday",
+  "version": "1.0.0",
+  "description": "The Silly Slack Bot For Daily Report.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "botkit": "^0.2.2",
+    "botkit-storage-firebase": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.10.0"
+  }
+}
