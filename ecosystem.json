@@ -1,0 +1,11 @@
+{
+  apps: [
+    {
+      name: "haamster",
+      script: "bot.js",
+      env_production : {
+        NODE_ENV: "production"
+      }
+    }
+  ]
+}
