@@ -1,11 +1,12 @@
 'use strict';
 var Botkit = require('botkit');
-var config = require('./config.js');
 var Firebase = require("firebase");
 
 
-var myFirebaseRef = new Firebase(config.firebase_url);
-var firebaseStorage = require('botkit-storage-firebase')({firebase_uri: config.firebase_url});
+var myFirebaseRef = new Firebase(process.env.HAAMSTER_FIREBASE_URL);
+var firebaseStorage = require('botkit-storage-firebase')({
+  firebase_uri: process.env.HAAMSTER_FIREBASE_URL,
+});
 
 var controller = Botkit.slackbot({
   debug: false,
@@ -17,7 +18,7 @@ var controller = Botkit.slackbot({
 
 // connect the bot to a stream of messages
 controller.spawn({
-  token: config.slack_token
+  token: process.env.HAAMSTER_SLACK_TOKEN,
 }).startRTM()
 
 controller.hears('(.*) 함스터',['direct_message'],function(bot,message) {

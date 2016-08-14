@@ -2,9 +2,8 @@
 A Silly Slack Bot For Daily Report
 
 ```
-var config = {};
+~/.bash_profile
 
-config.slack_token = MY_SLACK_BOT_TOKEN;
-config.firebase_url = MY_FIREBASE_DATABASE_URL;
-module.exports = config;
+export HAAMSTER_SLACK_TOKEN=<MY_SLACK_TOKEN>
+export HAAMSTER_FIREBASE_URL=<MY_FIREBASE_URL>
 ```
