@@ -1,5 +1,9 @@
-# dayday
+# 함스터
+## HAAMSTER
+
 A Silly Slack Bot For Daily Report
+
+※ 주의: 욕하지 마시오.
 
 ```
 ~/.bash_profile
