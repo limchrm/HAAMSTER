@@ -1,40 +1,23 @@
 'use strict';
-var Botkit = require('botkit');
-var Firebase = require("firebase");
+const Botkit = require('botkit');
+const Firebase = require("firebase");
 
-
-var myFirebaseRef = new Firebase(process.env.HAAMSTER_FIREBASE_URL);
-var firebaseStorage = require('botkit-storage-firebase')({
-  firebase_uri: process.env.HAAMSTER_FIREBASE_URL,
+const controller = Botkit.slackbot({ debug: false });
+const myFirebaseRef = new Firebase( process.env.HAAMSTER_FIREBASE_URL );
+const firebaseStorage = require('botkit-storage-firebase')({
+  firebase_uri: process.env.HAAMSTER_FIREBASE_URL
 });
 
-var controller = Botkit.slackbot({
-  debug: false,
-  // storage: firebaseStorage
-  //include "log: false" to disable logging
-  //or a "logLevel" integer from 0 to 7 to adjust logging verbosity
-});
-
-
-// connect the bot to a stream of messages
 controller.spawn({
   token: process.env.HAAMSTER_SLACK_TOKEN,
 }).startRTM()
 
-controller.hears('(.*) 함스터',['direct_message'],function(bot,message) {
-  var doneStuff = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
-  
-  bot.reply(message, doneStuff + ' 했니? :hamster:');
+require('./exception.js')(controller);
 
- 	myFirebaseRef.child('done-stuff').push({
- 		text: doneStuff,
-    createdAt: Date.now(),
- 	});
-});
-
-function getItemByIndex(index) {
+// Get done items by index
+function getItemByIndex(userId, index) {
 	return new Promise((resolve, reject) => {
-	  myFirebaseRef.child('done-stuff')
+	  myFirebaseRef.child('done-stuff').child(userId)
 		  .orderByChild('createdAt')
 		  .once("value", function(snapshot) {
 		  	let childIndex = -1;
@@ -46,28 +29,43 @@ function getItemByIndex(index) {
 		  		}
 		  	});
 		  	
-		  	if (!found) {
+		  	if ( !found ) {
 		  		return reject(new Error('뭐라구~? 혼밥 하는 찐따라 안 들리는데~?'));
 		  	}
 		  });
 	});
 }
 
-// give the bot something to listen for.
-controller.hears('(.*) 처치', ['direct_message','direct_mention','mention'], function(bot, message) {
-  const keyNumber = message.match[1];
+// add a haam
+controller.hears(['(.*) 함스터$', '^done (.*)'],['direct_message'],function(bot,message) {
+  const doneStuff = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
+  const userId = message.user;
+  
+  bot.reply(message, doneStuff + ' 했니? :hamster:');
 
-  if ( keyNumber == '전원' ) {
-  	myFirebaseRef.child('done-stuff').remove()
+ 	myFirebaseRef.child('done-stuff').child(userId)
+ 	  .push({
+	 		text: doneStuff,
+	    createdAt: Date.now(),
+	 	});
+});
+
+// remove haams
+controller.hears(['(.*) 처치$', '^rm (.*)'], ['direct_message','direct_mention','mention'], function(bot, message) {
+  const keyNumber = message.match[1];
+	const userId = message.user;
+
+  if ( ['전원', 'all'].indexOf(keyNumber) !== -1 ) {
+  	myFirebaseRef.child('done-stuff').child(userId).remove()
   	  .then(() => {
       	bot.reply(message, `전원 처치 (+100) :gun::gun::gun:`);
   	  });
   	return;
   }
 
-  getItemByIndex(keyNumber - 1)
+  getItemByIndex(userId, keyNumber - 1)
     .then(item => {
-    	return myFirebaseRef.child('done-stuff').child(item.key()).remove()
+    	return myFirebaseRef.child('done-stuff').child(userId).child(item.key()).remove()
     	  .then(function () {
     	  	const val = item.val();
     	  	bot.reply(message, `${val.text} 처치 (+100) :gun:`);
@@ -78,10 +76,12 @@ controller.hears('(.*) 처치', ['direct_message','direct_mention','mention'], f
 	  });
 });
 
-controller.hears('람쥐', ['direct_message','direct_mention','mention'], function(bot, message) {
+// show list of haams
+controller.hears(['^람쥐$', '^sqr$', '^ll$'], ['direct_message','direct_mention','mention'], function(bot, message) {
   // Attach an asynchronous callback to read the data at our posts reference
-  bot.reply(message, ':squirrel:')
-  myFirebaseRef.child('done-stuff')
+  const userId = message.user;
+  bot.reply(message, ':squirrel:');
+  myFirebaseRef.child('done-stuff').child(userId)
     .orderByChild('createdAt')
     .once("value", function(snapshot) {
     	const data = snapshot.val();
