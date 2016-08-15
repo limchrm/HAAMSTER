@@ -9,3 +9,23 @@
 export HAAMSTER_SLACK_TOKEN=<MY_SLACK_TOKEN>
 export HAAMSTER_FIREBASE_URL=<MY_FIREBASE_URL>
 ```
+
+## Run
+
+```bash
+$ npm start
+```
+
+## Development
+
+### Auto restart on file change
+
+```bash
+$ npm run dev
+```
+
+### Test
+
+```bash
+$ npm test
+```
