@@ -29,3 +29,9 @@ $ npm run dev
 ```bash
 $ npm test
 ```
+
+### Build
+
+```bash
+$ npm run build
+```

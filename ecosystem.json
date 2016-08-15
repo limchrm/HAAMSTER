@@ -1,10 +1,10 @@
 {
-  apps: [
+  "apps": [
     {
-      name: "haamster",
-      script: "bot.js",
-      env_production : {
-        NODE_ENV: "production"
+      "name": "haamster",
+      "script": "lib/bot.js",
+      "env_production": {
+        "NODE_ENV": "production"
       }
     }
   ]
