@@ -4,21 +4,19 @@ import handleException from './exception';
 
 const controller = Botkit.slackbot({ debug: false });
 
+controller.spawn({
+  token: process.env.HAAMSTER_SLACK_TOKEN,
+}).startRTM();
+
 firebase.initializeApp({
   databaseURL: process.env.HAAMSTER_FIREBASE_URL,
 });
 
 const myFirebaseRef = firebase.database().ref('done-stuff');
-// const firebaseStorage = require('botkit-storage-firebase')({
-//   firebase_uri: process.env.HAAMSTER_FIREBASE_URL,
-// });
-//
-
-controller.spawn({
-  token: process.env.HAAMSTER_SLACK_TOKEN,
-}).startRTM();
 
 handleException(controller);
+
+const week = ['월', '화', '수', '목', '금', '토', '일'];
 
 // Get done items by index
 function getItemByIndex(userId, index) {
@@ -46,9 +44,8 @@ function getItemByIndex(userId, index) {
 
 // add a haam
 controller.hears(['(.*) 함스터$', '^done (.*)'], [
-  'direct_message',
+  'direct_message', 'direct_mention', 'mention',
 ], (bot, message) => {
-  // match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
   const doneStuff = message.match[1];
   const userId = message.user;
 
@@ -90,17 +87,21 @@ controller.hears(['(.*) 처치$', '^rm (.*)'], [
 });
 
 // show list of haams
-controller.hears(['^람쥐$', '^sqr$', '^ll$'], [
+controller.hears(['퇴근', '^람쥐$', '^ll$'], [
   'direct_message', 'direct_mention', 'mention',
 ], (bot, message) => {
   // Attach an asynchronous callback to read the data at our posts reference
   const userId = message.user;
-  bot.reply(message, ':squirrel:');
+  const msg = message.match[0];
+
+  bot.reply(message, ':squirrel:'); // 람쥐 센세
+
   myFirebaseRef.child(userId)
     .orderByChild('createdAt')
     .once('value', (snapshot) => {
+
       const data = snapshot.val();
-      if (!data) {
+      if ( !data ) {
         bot.reply(message, '고요를 체험하시오.');
         return;
       }
@@ -109,6 +110,17 @@ controller.hears(['^람쥐$', '^sqr$', '^ll$'], [
         .map(key => data[key]) // .map(function (key) { return data[key]; })
         .filter(item => item.createdAt) // .filter(function (item) { return item.createdAt; })
         .map((item, index) => `${index + 1}) ${item.text}`);
+
+      if ( msg == '퇴근' ) {
+        const today = new Date();
+        const todayMonth = today.getMonth();
+        const todayDate = today.getDate();
+        const todayDay = week[today.getDay()];
+        const displayToday = `*${todayMonth}. ${todayDate}. ${todayDay}* \n`;
+
+        bot.reply(message, displayToday + result.join('\n'));
+        return;
+      }
 
       bot.reply(message, result.join('\n'));
     });
