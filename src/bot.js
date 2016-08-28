@@ -16,7 +16,7 @@ const myFirebaseRef = firebase.database().ref('done-stuff');
 
 handleException(controller);
 
-const week = ['월', '화', '수', '목', '금', '토', '일'];
+const week = ['일', '월', '화', '수', '목', '금', '토'];
 
 // Get done items by index
 function getItemByIndex(userId, index) {
@@ -113,9 +113,9 @@ controller.hears(['퇴근', '^람쥐$', '^ll$'], [
 
       if ( msg == '퇴근' ) {
         const today = new Date();
-        const todayMonth = today.getMonth();
+        const todayMonth = today.getMonth() + 1;
         const todayDate = today.getDate();
-        const todayDay = week[today.getDay()];
+        const todayDay = week[ today.getDay() ];
         const displayToday = `*${todayMonth}. ${todayDate}. ${todayDay}* \n`;
 
         bot.reply(message, displayToday + result.join('\n'));
